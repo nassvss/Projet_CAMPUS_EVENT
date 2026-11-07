@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>CAMPUS EVENT</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 700px; margin: 30px auto; padding: 0 15px; background: #f4f4f4; }
+    h1 { color: #1f3a8a; }
+    .event { background: white; border: 1px solid #ccc; border-radius: 6px; padding: 12px; margin-bottom: 10px; }
+    .event h2 { margin: 0 0 6px 0; font-size: 18px; }
+    .complet { color: red; }
+    #message { padding: 8px; margin: 10px 0; }
+    .ok { background: #d4f5dd; color: #145a2a; }
+    .erreur { background: #fbd9d6; color: #a0201a; }
+    button { background: #1f3a8a; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+    input { width: 50px; }
+  </style>
+</head>
+<body>
+  <h1>CAMPUS EVENT</h1>
+
+  <p>Mon numéro d'étudiant : <input type="number" id="student_id" value="1" min="1"></p>
+
+  <div id="message"></div>
+  <div id="events">Chargement...</div>
+
+  <script>
+    const API = "http://127.0.0.1:5000";
+
+    function afficherMessage(texte, classe) {
+      const m = document.getElementById("message");
+      m.textContent = texte;
+      m.className = classe;
+    }
+
+    function chargerEvenements() {
+      fetch(API + "/events")
+        .then(response => response.json())
+        .then(events => {
+          let html = "";
+          events.forEach(e => {
+            html += `
+              <div class="event">
+                <h2>${e.titre}</h2>
+                <p>${e.date} - ${e.lieu}</p>
+                <p>Capacité : ${e.capacite}</p>
+                <p class="${e.places_disponibles == 0 ? 'complet' : ''}">Places disponibles : ${e.places_disponibles}</p>
+                <button onclick="sInscrire(${e.id})">S'inscrire</button>
+              </div>`;
+          });
+          document.getElementById("events").innerHTML = html;
+        })
+        .catch(error => {
+          document.getElementById("events").innerHTML = "";
+          afficherMessage("Erreur : l'API ne répond pas. Vérifiez que le serveur Flask est lancé.", "erreur");
+        });
+    }
+
+    function sInscrire(eventId) {
+      const studentId = Number(document.getElementById("student_id").value);
+
+      fetch(API + "/registrations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ student_id: studentId, event_id: eventId })
+      })
+        .then(response => response.json().then(data => ({ status: response.status, data: data })))
+        .then(result => {
+          if (result.status == 201) {
+            afficherMessage(result.data.message, "ok");
+            chargerEvenements();
+          } else {
+            afficherMessage(result.data.error + " (code " + result.status + ")", "erreur");
+          }
+        })
+        .catch(error => afficherMessage("Erreur : l'API ne répond pas.", "erreur"));
+    }
+
+    chargerEvenements();
+  </script>
+</body>
+</html>
