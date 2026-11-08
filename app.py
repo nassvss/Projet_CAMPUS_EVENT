@@ -42,8 +42,8 @@ def trouver(liste, id):
 
 
 def est_un_id(valeur):
-    # True/False sont des int en Python : on les exclut explicitement
-    return isinstance(valeur, int) and not isinstance(valeur, bool)
+    # entier strictement positif ; True/False sont des int en Python, on les exclut
+    return isinstance(valeur, int) and not isinstance(valeur, bool) and valeur > 0
 
 
 # ----- Événements -----
@@ -76,7 +76,7 @@ def create_registration():
         return jsonify({"error": "student_id et event_id sont obligatoires"}), 400
 
     if not est_un_id(data["student_id"]) or not est_un_id(data["event_id"]):
-        return jsonify({"error": "student_id et event_id doivent etre des entiers"}), 400
+        return jsonify({"error": "student_id et event_id doivent etre des entiers positifs"}), 400
 
     student = trouver(students, data["student_id"])
     if student is None:

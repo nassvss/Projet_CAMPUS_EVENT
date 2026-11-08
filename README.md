@@ -78,7 +78,7 @@ La page affiche les événements récupérés via `GET /events`. Si le serveur F
 | Situation | Réponse |
 |---|---|
 | `student_id` ou `event_id` absent (ou corps non JSON) | 400 |
-| `student_id` ou `event_id` qui n'est pas un entier (texte, booléen…) | 400 |
+| `student_id` ou `event_id` qui n'est pas un entier positif (texte, booléen, 0, négatif…) | 400 |
 | Étudiant inexistant | 404 |
 | Événement inexistant | 404 |
 | Étudiant déjà inscrit à cet événement (inscription non refusée) | 409 |

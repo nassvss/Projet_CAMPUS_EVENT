@@ -64,7 +64,7 @@
           if (error.message.startsWith("HTTP ")) {
             afficherMessage("Erreur : l'API a renvoyé le code " + error.message.slice(5) + ".", "erreur");
           } else {
-            afficherMessage("Erreur : l'API ne répond pas. Vérifiez que le serveur Flask est lancé.", "erreur");
+            afficherMessage("Erreur : impossible de charger les événements. Vérifiez que le serveur Flask est lancé.", "erreur");
           }
         });
     }
