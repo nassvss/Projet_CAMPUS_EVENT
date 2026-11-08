@@ -41,6 +41,11 @@ def trouver(liste, id):
     return None
 
 
+def est_un_id(valeur):
+    # True/False sont des int en Python : on les exclut explicitement
+    return isinstance(valeur, int) and not isinstance(valeur, bool)
+
+
 # ----- Événements -----
 @app.get("/events")
 def get_events():
@@ -67,8 +72,11 @@ def create_registration():
     data = request.get_json(silent=True)
 
     # champs obligatoires
-    if not data or "student_id" not in data or "event_id" not in data:
+    if not isinstance(data, dict) or "student_id" not in data or "event_id" not in data:
         return jsonify({"error": "student_id et event_id sont obligatoires"}), 400
+
+    if not est_un_id(data["student_id"]) or not est_un_id(data["event_id"]):
+        return jsonify({"error": "student_id et event_id doivent etre des entiers"}), 400
 
     student = trouver(students, data["student_id"])
     if student is None:
@@ -121,7 +129,7 @@ def update_registration(id):
         return jsonify({"error": "Inscription introuvable"}), 404
 
     data = request.get_json(silent=True)
-    if not data or data.get("status") not in ["accepted", "rejected"]:
+    if not isinstance(data, dict) or data.get("status") not in ["accepted", "rejected"]:
         return jsonify({"error": "status doit etre accepted ou rejected"}), 400
 
     # on ne traite qu'une inscription en attente

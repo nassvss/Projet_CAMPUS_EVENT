@@ -30,8 +30,8 @@ python -m venv venv
 #   Windows (cmd)        : venv\Scripts\activate.bat
 #   macOS / Linux        : source venv/bin/activate
 
-# installer Flask et Flask-CORS (nécessaire pour que index.html puisse appeler l'API)
-pip install flask flask-cors
+# installer Flask (les en-têtes CORS sont ajoutés directement dans app.py)
+pip install flask
 ```
 
 ## 3. Lancer l'application
@@ -78,6 +78,7 @@ La page affiche les événements récupérés via `GET /events`. Si le serveur F
 | Situation | Réponse |
 |---|---|
 | `student_id` ou `event_id` absent (ou corps non JSON) | 400 |
+| `student_id` ou `event_id` qui n'est pas un entier (texte, booléen…) | 400 |
 | Étudiant inexistant | 404 |
 | Événement inexistant | 404 |
 | Étudiant déjà inscrit à cet événement (inscription non refusée) | 409 |

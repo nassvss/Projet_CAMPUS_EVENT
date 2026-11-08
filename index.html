@@ -37,7 +37,12 @@
 
     function chargerEvenements() {
       fetch(API + "/events")
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("HTTP " + response.status);
+          }
+          return response.json();
+        })
         .then(events => {
           let html = "";
           events.forEach(e => {
@@ -56,7 +61,11 @@
         })
         .catch(error => {
           document.getElementById("events").innerHTML = "";
-          afficherMessage("Erreur : l'API ne répond pas. Vérifiez que le serveur Flask est lancé.", "erreur");
+          if (error.message.startsWith("HTTP ")) {
+            afficherMessage("Erreur : l'API a renvoyé le code " + error.message.slice(5) + ".", "erreur");
+          } else {
+            afficherMessage("Erreur : l'API ne répond pas. Vérifiez que le serveur Flask est lancé.", "erreur");
+          }
         });
     }
 
