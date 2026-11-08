@@ -1,11 +1,18 @@
 from flask import Flask, jsonify, request
-from flask_cors import CORS
 from datetime import datetime
 
 
 
 app = Flask(__name__)
-CORS(app)  # pour que index.html puisse appeler l'API
+
+
+@app.after_request
+def ajouter_headers_cors(response):
+    """Autorise les appels de l'API depuis index.html."""
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PATCH, OPTIONS"
+    return response
 
 # ----- Données (listes Python) -----
 students = [
@@ -71,14 +78,14 @@ def create_registration():
     if event is None:
         return jsonify({"error": "Evenement introuvable"}), 404
 
-    # événement complet
-    if event["places_disponibles"] <= 0:
-        return jsonify({"error": "Evenement complet"}), 409
-
     # double inscription
     for r in registrations:
         if r["student_id"] == student["id"] and r["event_id"] == event["id"] and r["status"] != "rejected":
             return jsonify({"error": "Etudiant deja inscrit a cet evenement"}), 409
+
+    # événement complet
+    if event["places_disponibles"] <= 0:
+        return jsonify({"error": "Evenement complet"}), 409
 
     registration = {
         "id": len(registrations) + 1,
